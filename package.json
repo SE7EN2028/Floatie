@@ -1,0 +1,16 @@
+{
+  "name": "floatie",
+  "version": "1.0.0",
+  "description": "System-wide floating video player — YouTube & local files",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --inspect"
+  },
+  "keywords": ["electron", "pip", "floating", "youtube", "video"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^35.1.2"
+  }
+}
