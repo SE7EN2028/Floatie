@@ -4,19 +4,36 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
     <title>Floatie</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
     <div class="window-wrap">
-        <div class="title-bar">
-            <span class="app-name">Floatie</span>
-            <button class="btn-close" onclick="window.close()" title="Close">X</button>
+        <div class="controls-overlay">
+            <div class="title-bar">
+                <span class="app-name">Floatie</span>
+                <button class="btn-close" onclick="window.close()" title="Close">X</button>
+            </div>
+
+            <div class="url-bar">
+                <input type="text" id="url-input" class="url-input" placeholder="Paste a YouTube URL..." autocomplete="off"
+                    spellcheck="false" />
+                <button id="go-btn" class="btn-go">Play</button>
+            </div>
         </div>
-        <div class="content">
-            <p class="placeholder-text">Floatie</p>
-            <p class="sub-text">Abhi to shuruaat hai</p>
+
+        <div class="player-area">
+            <webview id="yt-player" class="yt-player hidden" 
+                allowpopups 
+                disablewebsecurity="false" 
+                webpreferences="contextIsolation=yes">
+            </webview>
+
+            <div id="empty-state" class="empty-state">
+                <p>Paste a YouTube URL above</p>
+            </div>
         </div>
     </div>
 
