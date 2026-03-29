@@ -73,9 +73,14 @@ body {
 
 .app-name {
   font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: 0.3px;
+  opacity: 0.9;
+  letter-spacing: 0.5px;
+}
+
+.window-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
 .btn-close {
@@ -92,6 +97,27 @@ body {
   align-items: center;
   justify-content: center;
   transition: background 0.2s, transform 0.15s;
+}
+
+.btn-maximize {
+  -webkit-app-region: no-drag;
+  background: rgba(9, 6, 6, 0.18);
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  color: rgba(25, 255, 56, 0.95);
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn-maximize:hover {
+  background: rgba(25, 255, 56, 0.25);
+  transform: scale(1.2);
 }
 
 .btn-close:hover {

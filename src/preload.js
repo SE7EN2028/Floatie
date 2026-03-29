@@ -1,5 +1,6 @@
-const { contextBridge } = require('electron');
+const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('floatieAPI', {
-  platform: process.platform,
+contextBridge.exposeInMainWorld('electronAPI', {
+    closeWindow: () => ipcRenderer.send('window-close'),
+    maximizeWindow: () => ipcRenderer.send('window-maximize')
 });

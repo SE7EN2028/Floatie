@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
 let win;
@@ -28,10 +28,13 @@ function createWindow() {
 
   win.setAspectRatio(16 / 9);
 
-  win.setAlwaysOnTop(true, 'screen-saver');
-  win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+  
+  ipcMain.on('window-close', () => win.close());
+  ipcMain.on('window-maximize', () => {
+      if (win.isMaximized()) win.unmaximize();
+      else win.maximize();
+  });
 }
 
 app.whenReady().then(() => {

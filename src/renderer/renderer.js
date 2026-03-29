@@ -40,20 +40,20 @@ document.addEventListener('mousemove', wakeControls);
 ytPlayer.addEventListener('dom-ready', () => {
     ytPlayer.executeJavaScript(`
         window.onmousemove = () => document.title = 'M' + Date.now();
-        
+
         setInterval(() => {
             const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button');
             if (skipBtn) skipBtn.click();
-            
+
             if (document.querySelector('.ad-showing')) {
                 const vid = document.querySelector('video');
                 if (vid) vid.currentTime = vid.duration || 999;
             }
-            
+
             document.querySelectorAll('.ytp-ad-overlay-container').forEach(b => b.style.display = 'none');
         }, 300);
     `);
-    
+
     ytPlayer.insertCSS(`
         body { background: #000 !important; overflow: hidden !important; }
         #masthead-container, #secondary, #comments, #footer, #related, ytd-watch-metadata { display: none !important; }
@@ -80,12 +80,17 @@ function loadVideo() {
     ytPlayer.src = watchUrl;
     ytPlayer.classList.remove('hidden');
     emptyState.classList.add('hidden');
-    
+
     wakeControls();
 }
 
 goBtn.addEventListener('click', loadVideo);
 
 urlInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') loadVideo();
+    if (e.key === 'Enter') {
+        loadVideo();
+    }
 });
+
+document.querySelector('.btn-close').addEventListener('click', () => window.electronAPI.closeWindow());
+document.querySelector('.btn-maximize').addEventListener('click', () => window.electronAPI.maximizeWindow());

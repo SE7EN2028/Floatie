@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
     <title>Floatie</title>
     <link rel="stylesheet" href="style.css" />
 </head>
@@ -14,20 +15,21 @@
         <div class="controls-overlay">
             <div class="title-bar">
                 <span class="app-name">Floatie</span>
-                <button class="btn-close" onclick="window.close()" title="Close">X</button>
+                <div class="window-controls">
+                    <button class="btn-maximize" title="Maximize">{ }</button>
+                    <button class="btn-close" title="Close">X</button>
+                </div>
             </div>
 
             <div class="url-bar">
-                <input type="text" id="url-input" class="url-input" placeholder="Paste a YouTube URL..." autocomplete="off"
-                    spellcheck="false" />
+                <input type="text" id="url-input" class="url-input" placeholder="Paste a YouTube URL..."
+                    autocomplete="off" spellcheck="false" />
                 <button id="go-btn" class="btn-go">Play</button>
             </div>
         </div>
 
         <div class="player-area">
-            <webview id="yt-player" class="yt-player hidden" 
-                allowpopups 
-                disablewebsecurity="false" 
+            <webview id="yt-player" class="yt-player hidden" allowpopups disablewebsecurity="false"
                 webpreferences="contextIsolation=yes">
             </webview>
 
