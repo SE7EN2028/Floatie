@@ -17,6 +17,7 @@ function createWindow() {
     alwaysOnTop: true,
     resizable: true,
     hasShadow: true,
+    icon: path.join(__dirname, '..', 'assets', 'floatielogo.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -47,6 +48,9 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  if (process.platform === 'darwin') {
+    app.dock.setIcon(path.join(__dirname, '..', 'assets', 'floatielogo.png'));
+  }
   createWindow();
 
   app.on('activate', () => {

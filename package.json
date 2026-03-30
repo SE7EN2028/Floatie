@@ -12,7 +12,8 @@
     "appId": "com.floatie.app",
     "productName": "Floatie",
     "mac": {
-      "target": "dmg"
+      "target": "dmg",
+      "icon": "assets/floatielogo.png"
     },
     "win": {
       "target": [
