@@ -38,46 +38,72 @@ function wakeControls() {
 document.addEventListener('mousemove', wakeControls);
 
 ytPlayer.addEventListener('dom-ready', () => {
-    ytPlayer.executeJavaScript(`
-        window.onmousemove = () => document.title = 'M' + Date.now();
+    const currentUrl = ytPlayer.getURL();
+    const isYouTube = currentUrl.includes('youtube.com') || currentUrl.includes('youtu.be');
 
-        setInterval(() => {
-            const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button');
-            if (skipBtn) skipBtn.click();
+    if (isYouTube) {
+        ytPlayer.executeJavaScript(`
+            window.onmousemove = () => document.title = 'M' + Date.now();
 
-            if (document.querySelector('.ad-showing')) {
-                const vid = document.querySelector('video');
-                if (vid) vid.currentTime = vid.duration || 999;
-            }
+            setInterval(() => {
+                const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button');
+                if (skipBtn) skipBtn.click();
 
-            document.querySelectorAll('.ytp-ad-overlay-container').forEach(b => b.style.display = 'none');
-        }, 300);
-    `);
+                if (document.querySelector('.ad-showing')) {
+                    const vid = document.querySelector('video');
+                    if (vid) vid.currentTime = vid.duration || 999;
+                }
 
-    ytPlayer.insertCSS(`
-        body { background: #000 !important; overflow: hidden !important; }
-        #masthead-container, #secondary, #comments, #footer, #related, ytd-watch-metadata { display: none !important; }
-        ytd-watch-flexy[flexy] #primary { margin: 0 !important; padding: 0 !important; max-width: 100vw !important; }
-        .html5-video-player { position: fixed !important; top: 0 !important; left: 0 !important; min-width: 100vw !important; min-height: 100vh !important; z-index: 99999 !important; }
-        ::-webkit-scrollbar { display: none !important; }
-    `);
+                document.querySelectorAll('.ytp-ad-overlay-container').forEach(b => b.style.display = 'none');
+            }, 300);
+        `);
+    } else {
+        ytPlayer.executeJavaScript(`
+            window.onmousemove = () => document.title = 'M' + Date.now();
+        `);
+    }
+    
+    handleYouTubeCSS(currentUrl);
 });
+
+let injectedCssKey = null;
+function handleYouTubeCSS(url) {
+    const isPlayingVideo = url.includes('youtube.com/watch') || url.includes('youtu.be/');
+    if (isPlayingVideo) {
+        if (!injectedCssKey) {
+            ytPlayer.insertCSS(`
+                body { background: #000 !important; overflow: hidden !important; }
+                #masthead-container, #secondary, #comments, #footer, #related, ytd-watch-metadata { display: none !important; }
+                ytd-app { background: #000 !important; }
+                #player { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 9999 !important; }
+                video { object-fit: contain !important; }
+            `).then(key => injectedCssKey = key);
+        }
+    } else {
+        if (injectedCssKey) {
+            ytPlayer.removeInsertedCSS(injectedCssKey);
+            injectedCssKey = null;
+        }
+    }
+}
 
 ytPlayer.addEventListener('page-title-updated', wakeControls);
 
 function loadVideo() {
-    const videoId = extractYouTubeId(urlInput.value);
+    let url = urlInput.value.trim();
+    if (!url) return;
 
-    if (!videoId) {
-        urlInput.style.borderColor = 'rgba(255, 80, 80, 0.6)';
-        setTimeout(() => {
-            urlInput.style.borderColor = '';
-        }, 1200);
-        return;
+    // Smart logic: Auto-format Youtube URLs, otherwise treat as a generic website
+    const videoId = extractYouTubeId(url);
+    if (videoId) {
+        url = `https://www.youtube.com/watch?v=${videoId}`;
+    } else {
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            url = `https://${url}`;
+        }
     }
 
-    const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
-    ytPlayer.src = watchUrl;
+    ytPlayer.src = url;
     ytPlayer.classList.remove('hidden');
     emptyState.classList.add('hidden');
 
@@ -94,6 +120,23 @@ urlInput.addEventListener('keydown', (e) => {
 
 document.querySelector('.btn-close').addEventListener('click', () => window.electronAPI.closeWindow());
 document.querySelector('.btn-maximize').addEventListener('click', () => window.electronAPI.maximizeWindow());
+
+document.getElementById('back-btn').addEventListener('click', () => {
+    if (ytPlayer.canGoBack()) ytPlayer.goBack();
+});
+document.getElementById('forward-btn').addEventListener('click', () => {
+    if (ytPlayer.canGoForward()) ytPlayer.goForward();
+});
+
+// Update URL bar seamlessly when browsing
+ytPlayer.addEventListener('did-navigate', (e) => {
+    urlInput.value = e.url;
+    handleYouTubeCSS(e.url);
+});
+ytPlayer.addEventListener('did-navigate-in-page', (e) => {
+    urlInput.value = e.url;
+    handleYouTubeCSS(e.url);
+});
 
 let isRatioLocked = true;
 document.querySelector('.btn-ratio').addEventListener('click', (e) => {

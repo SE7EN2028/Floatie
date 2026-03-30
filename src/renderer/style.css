@@ -178,6 +178,28 @@ body {
   background: rgba(124, 106, 247, 0.08);
 }
 
+.btn-nav {
+  -webkit-app-region: no-drag;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 7px;
+  color: #fff;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.btn-nav:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.04);
+}
+
+.btn-nav:active {
+  transform: scale(0.97);
+}
+
 .btn-go {
   -webkit-app-region: no-drag;
   background: var(--accent);
