@@ -43,7 +43,46 @@ body {
     0 0 0 0.5px rgba(255, 255, 255, 0.06) inset;
 }
 
+.hover-ring {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  z-index: 101;
+  -webkit-app-region: no-drag;
+}
+
+.menu-trigger {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff5f56;
+  border: 1px solid rgba(228, 84, 84, 0.5);
+  box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.2);
+  z-index: 102;
+  transition: transform 0.2s ease;
+  -webkit-app-region: no-drag;
+  cursor: grab;
+}
+
+.menu-trigger:active {
+  cursor: grabbing;
+}
+
+.menu-trigger:hover {
+  transform: scale(1.15);
+}
+
 .controls-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
   width: 100%;
   max-height: 90px;
   opacity: 1;
@@ -55,7 +94,7 @@ body {
   flex-shrink: 0;
 }
 
-.window-wrap.video-playing .controls-overlay {
+.window-wrap.menu-hidden .controls-overlay {
   max-height: 0;
   opacity: 0;
   pointer-events: none;
@@ -65,7 +104,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 8px 12px 8px 36px;
   background: transparent;
   -webkit-app-region: drag;
   flex-shrink: 0;
