@@ -9,7 +9,7 @@ app.commandLine.appendSwitch('disable-features', 'AudioServiceSandbox');
 function createWindow() {
   win = new BrowserWindow({
     width: 400,
-    height: 225,
+    height: 400,
     minWidth: 320,
     minHeight: 180,
     frame: false,
@@ -26,17 +26,15 @@ function createWindow() {
     },
   });
 
-  win.setAspectRatio(16 / 9);
-
   win.setAlwaysOnTop(true, 'screen-saver');
   win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
-  
+
   ipcMain.on('window-close', () => win.close());
   ipcMain.on('window-maximize', () => {
-      if (win.isMaximized()) win.unmaximize();
-      else win.maximize();
+    if (win.isMaximized()) win.unmaximize();
+    else win.maximize();
   });
   ipcMain.on('window-set-ratio', (e, ratio) => win.setAspectRatio(ratio));
 }

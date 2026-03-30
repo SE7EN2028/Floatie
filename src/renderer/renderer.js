@@ -62,7 +62,7 @@ ytPlayer.addEventListener('dom-ready', () => {
             window.onmousemove = () => document.title = 'M' + Date.now();
         `);
     }
-    
+
     handleYouTubeCSS(currentUrl);
 });
 
@@ -93,7 +93,6 @@ function loadVideo() {
     let url = urlInput.value.trim();
     if (!url) return;
 
-    // Smart logic: Auto-format Youtube URLs, otherwise treat as a generic website
     const videoId = extractYouTubeId(url);
     if (videoId) {
         url = `https://www.youtube.com/watch?v=${videoId}`;
@@ -128,7 +127,6 @@ document.getElementById('forward-btn').addEventListener('click', () => {
     if (ytPlayer.canGoForward()) ytPlayer.goForward();
 });
 
-// Update URL bar seamlessly when browsing
 ytPlayer.addEventListener('did-navigate', (e) => {
     urlInput.value = e.url;
     handleYouTubeCSS(e.url);
@@ -138,11 +136,19 @@ ytPlayer.addEventListener('did-navigate-in-page', (e) => {
     handleYouTubeCSS(e.url);
 });
 
-let isRatioLocked = true;
-document.querySelector('.btn-ratio').addEventListener('click', (e) => {
+let isRatioLocked = false;
+const ratioBtn = document.querySelector('.btn-ratio');
+
+// Set initial visual state for "Free Style"
+ratioBtn.style.opacity = '0.4';
+ratioBtn.style.textDecoration = 'line-through';
+ratioBtn.title = "Lock to 16:9";
+
+ratioBtn.addEventListener('click', (e) => {
     isRatioLocked = !isRatioLocked;
     window.electronAPI.setRatio(isRatioLocked ? 16 / 9 : 0);
-
+    
+    // Dim the button slightly and cross it out when unlocked
     e.target.style.opacity = isRatioLocked ? '1' : '0.4';
     e.target.style.textDecoration = isRatioLocked ? 'none' : 'line-through';
     e.target.title = isRatioLocked ? "Unlock Aspect Ratio" : "Lock to 16:9";
