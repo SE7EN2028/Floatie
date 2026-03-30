@@ -26,21 +26,19 @@ hoverRing.addEventListener('mouseleave', hideMenu);
 topMenu.addEventListener('mouseleave', hideMenu);
 
 let isDragging = false;
-let startX, startY;
+let offsetX, offsetY;
 
 const dragger = document.getElementById('menu-trigger');
 
 dragger.addEventListener('mousedown', (e) => {
     isDragging = true;
-    startX = e.screenX;
-    startY = e.screenY;
+    offsetX = e.clientX;
+    offsetY = e.clientY;
 });
 
 document.addEventListener('mousemove', (e) => {
     if (isDragging) {
-        window.electronAPI.moveWindow(e.screenX - startX, e.screenY - startY);
-        startX = e.screenX;
-        startY = e.screenY;
+        window.electronAPI.moveWindow(e.screenX - offsetX, e.screenY - offsetY);
     }
 });
 
