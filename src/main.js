@@ -28,6 +28,9 @@ function createWindow() {
 
   win.setAspectRatio(16 / 9);
 
+  win.setAlwaysOnTop(true, 'screen-saver');
+  win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
   
   ipcMain.on('window-close', () => win.close());
@@ -35,6 +38,7 @@ function createWindow() {
       if (win.isMaximized()) win.unmaximize();
       else win.maximize();
   });
+  ipcMain.on('window-set-ratio', (e, ratio) => win.setAspectRatio(ratio));
 }
 
 app.whenReady().then(() => {

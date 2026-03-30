@@ -94,3 +94,13 @@ urlInput.addEventListener('keydown', (e) => {
 
 document.querySelector('.btn-close').addEventListener('click', () => window.electronAPI.closeWindow());
 document.querySelector('.btn-maximize').addEventListener('click', () => window.electronAPI.maximizeWindow());
+
+let isRatioLocked = true;
+document.querySelector('.btn-ratio').addEventListener('click', (e) => {
+    isRatioLocked = !isRatioLocked;
+    window.electronAPI.setRatio(isRatioLocked ? 16 / 9 : 0);
+
+    e.target.style.opacity = isRatioLocked ? '1' : '0.4';
+    e.target.style.textDecoration = isRatioLocked ? 'none' : 'line-through';
+    e.target.title = isRatioLocked ? "Unlock Aspect Ratio" : "Lock to 16:9";
+});
