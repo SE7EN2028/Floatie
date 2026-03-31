@@ -6,12 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
-    <title>Floatie</title>
+    <title> Floatie</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
     <div class="window-wrap">
+        <div class="dot-cluster" id="dot-cluster">
+            <div class="dot dot-close" id="dot-close" title="Close"></div>
+            <div class="dot dot-maximize" id="dot-maximize" title="Maximize"></div>
+        </div>
         <div class="hover-ring" id="hover-ring"></div>
         <div class="menu-trigger" id="menu-trigger" title="Drag Window"></div>
         <div class="controls-overlay">
@@ -19,8 +23,6 @@
                 <span class="app-name" style="color: white;">Floatie</span>
                 <div class="window-controls">
                     <button class="btn-ratio" title="Unlock Aspect Ratio">16:9</button>
-                    <button class="btn-maximize" title="Maximize">{ }</button>
-                    <button class="btn-close" title="Close">X</button>
                 </div>
             </div>
 

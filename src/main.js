@@ -33,28 +33,40 @@ function createWindow() {
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 
   let currentRatio = 0;
-  
+  let isAnimating = false;
+  let isExpanded = false;
+
   ipcMain.on('window-close', () => win.close());
-  
+
   ipcMain.on('window-maximize', () => {
-    if (!win) return;
-    if (win.isMaximized()) {
+    if (!win || isAnimating) return;
+
+    if (isExpanded) {
+      isAnimating = true;
+      isExpanded = false;
       win.unmaximize();
-      win.setAspectRatio(currentRatio); 
+      setTimeout(() => {
+        win.setAspectRatio(currentRatio);
+        isAnimating = false;
+      }, 500);
     } else {
-      win.setAspectRatio(0); 
-      win.maximize();
+      isAnimating = true;
+      isExpanded = true;
+      win.setAspectRatio(0);
+      setTimeout(() => {
+        win.maximize();
+        isAnimating = false;
+      }, 50);
     }
   });
-  
+
   ipcMain.on('window-set-ratio', (e, ratio) => {
     currentRatio = ratio;
-    // Only apply the aspect ratio physically if we aren't currently maximized
     if (win && !win.isMaximized()) {
       win.setAspectRatio(ratio);
     }
   });
-  
+
   ipcMain.on('window-move', (e, x, y) => {
     if (win) {
       win.setPosition(Math.round(x), Math.round(y));

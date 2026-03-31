@@ -5,35 +5,67 @@ const emptyState = document.getElementById('empty-state');
 const goBtn = document.getElementById('go-btn');
 const topMenu = document.querySelector('.controls-overlay');
 const hoverRing = document.getElementById('hover-ring');
+const dotCluster = document.getElementById('dot-cluster');
+const dotClose = document.getElementById('dot-close');
+const dotMaximize = document.getElementById('dot-maximize');
 
 windowWrap.classList.add('menu-hidden');
 
 let hoverTimeout;
+let isTyping = false;
+let menuPinned = false;
+
 function showMenu() {
     clearTimeout(hoverTimeout);
+    menuPinned = true;
+    dotCluster.classList.add('typing');
     windowWrap.classList.remove('menu-hidden');
 }
 
 function hideMenu() {
+    if (isTyping || menuPinned) return;
     hoverTimeout = setTimeout(() => {
         windowWrap.classList.add('menu-hidden');
     }, 3000);
 }
 
+function dismissMenu() {
+    isTyping = false;
+    menuPinned = false;
+    dotCluster.classList.remove('typing');
+    clearTimeout(hoverTimeout);
+    windowWrap.classList.add('menu-hidden');
+}
+
 hoverRing.addEventListener('mouseenter', showMenu);
-topMenu.addEventListener('mouseenter', showMenu);
-hoverRing.addEventListener('mouseleave', hideMenu);
-topMenu.addEventListener('mouseleave', hideMenu);
+dotCluster.addEventListener('mouseenter', showMenu);
+
+urlInput.addEventListener('input', () => {
+    if (urlInput.value.trim().length > 0) {
+        isTyping = true;
+        showMenu();
+    } else {
+        isTyping = false;
+    }
+});
 
 let isDragging = false;
 let offsetX, offsetY;
 
-const dragger = document.getElementById('menu-trigger');
-
-dragger.addEventListener('mousedown', (e) => {
+function startDrag(e) {
     isDragging = true;
     offsetX = e.clientX;
     offsetY = e.clientY;
+}
+
+const dragger = document.getElementById('menu-trigger');
+const titleBar = document.querySelector('.title-bar');
+
+dragger.addEventListener('mousedown', startDrag);
+
+titleBar.addEventListener('mousedown', (e) => {
+    if (e.target.closest('button, input')) return;
+    startDrag(e);
 });
 
 document.addEventListener('mousemove', (e) => {
@@ -128,7 +160,8 @@ function loadVideo() {
     ytPlayer.classList.remove('hidden');
     emptyState.classList.add('hidden');
 
-    hideMenu();
+    isTyping = false;
+    dismissMenu();
 }
 
 goBtn.addEventListener('click', loadVideo);
@@ -139,8 +172,11 @@ urlInput.addEventListener('keydown', (e) => {
     }
 });
 
-document.querySelector('.btn-close').addEventListener('click', () => window.electronAPI.closeWindow());
-document.querySelector('.btn-maximize').addEventListener('click', () => window.electronAPI.maximizeWindow());
+dotClose.addEventListener('click', () => window.electronAPI.closeWindow());
+dotMaximize.addEventListener('click', () => {
+    window.electronAPI.maximizeWindow();
+    dismissMenu();
+});
 
 document.getElementById('back-btn').addEventListener('click', () => {
     if (ytPlayer.canGoBack()) ytPlayer.goBack();
