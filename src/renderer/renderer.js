@@ -13,40 +13,42 @@ windowWrap.classList.add('menu-hidden');
 
 let hoverTimeout;
 let isTyping = false;
-let menuPinned = false;
 
 function showMenu() {
     clearTimeout(hoverTimeout);
-    menuPinned = true;
     dotCluster.classList.add('typing');
     windowWrap.classList.remove('menu-hidden');
 }
 
 function hideMenu() {
-    if (isTyping || menuPinned) return;
+    if (isTyping) return;
+    clearTimeout(hoverTimeout);
     hoverTimeout = setTimeout(() => {
         windowWrap.classList.add('menu-hidden');
-    }, 3000);
+        dotCluster.classList.remove('typing');
+    }, 2500);
 }
 
 function dismissMenu() {
     isTyping = false;
-    menuPinned = false;
-    dotCluster.classList.remove('typing');
     clearTimeout(hoverTimeout);
     windowWrap.classList.add('menu-hidden');
+    dotCluster.classList.remove('typing');
 }
 
 hoverRing.addEventListener('mouseenter', showMenu);
+hoverRing.addEventListener('mouseleave', hideMenu);
+
 dotCluster.addEventListener('mouseenter', showMenu);
+dotCluster.addEventListener('mouseleave', hideMenu);
+
+topMenu.addEventListener('mouseenter', showMenu);
+topMenu.addEventListener('mouseleave', hideMenu);
 
 urlInput.addEventListener('input', () => {
-    if (urlInput.value.trim().length > 0) {
-        isTyping = true;
-        showMenu();
-    } else {
-        isTyping = false;
-    }
+    isTyping = urlInput.value.trim().length > 0;
+    if (isTyping) showMenu();
+    else hideMenu();
 });
 
 let isDragging = false;
@@ -106,16 +108,18 @@ ytPlayer.addEventListener('dom-ready', () => {
     if (isYouTube) {
         ytPlayer.executeJavaScript(`
             setInterval(() => {
-                const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button');
-                if (skipBtn) skipBtn.click();
-
-                if (document.querySelector('.ad-showing')) {
-                    const vid = document.querySelector('video');
-                    if (vid) vid.currentTime = vid.duration || 999;
+                const url = location.href;
+                if (url.includes('/watch') || url.includes('/live')) {
+                    document.querySelectorAll('ytd-masthead, #masthead-container, #chat, ytd-live-chat-frame').forEach(el => el.remove());
                 }
-
-                document.querySelectorAll('.ytp-ad-overlay-container').forEach(b => b.style.display = 'none');
-            }, 300);
+                document.querySelectorAll('.ytp-ad-overlay-container').forEach(el => el.remove());
+                const skip = document.querySelector('.ytp-ad-skip-button, .ytp-ad-skip-button-modern');
+                if (skip) skip.click();
+                if (document.querySelector('.ad-showing')) {
+                    const v = document.querySelector('video');
+                    if (v) v.currentTime = v.duration || 999;
+                }
+            }, 500);
         `);
     }
 
@@ -176,6 +180,12 @@ dotClose.addEventListener('click', () => window.electronAPI.closeWindow());
 dotMaximize.addEventListener('click', () => {
     window.electronAPI.maximizeWindow();
     dismissMenu();
+});
+
+document.querySelector('.app-name').addEventListener('click', () => {
+    if (!ytPlayer.classList.contains('hidden')) {
+        ytPlayer.reload();
+    }
 });
 
 document.getElementById('back-btn').addEventListener('click', () => {

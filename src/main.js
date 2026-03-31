@@ -8,8 +8,8 @@ app.commandLine.appendSwitch('disable-features', 'AudioServiceSandbox');
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 400,
-    height: 225,
+    width: 415,
+    height: 245,
     minWidth: 320,
     minHeight: 180,
     frame: false,
