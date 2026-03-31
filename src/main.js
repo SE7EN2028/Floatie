@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
 let win;
@@ -33,42 +33,28 @@ function createWindow() {
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 
   let currentRatio = 0;
-  let isExpanded = false;
-  let pipBounds = null;
-
+  
   ipcMain.on('window-close', () => win.close());
-
+  
   ipcMain.on('window-maximize', () => {
     if (!win) return;
-
-    if (isExpanded) {
-
-      isExpanded = false;
-      win.setAspectRatio(0);
-      if (pipBounds) {
-        win.setBounds(pipBounds, false);
-      }
-      setTimeout(() => {
-        if (win && !isExpanded) {
-          win.setAspectRatio(currentRatio);
-        }
-      }, 100);
+    if (win.isMaximized()) {
+      win.unmaximize();
+      win.setAspectRatio(currentRatio); 
     } else {
-      pipBounds = win.getBounds();
-      isExpanded = true;
-      win.setAspectRatio(0);
-      const display = screen.getDisplayNearestPoint({ x: pipBounds.x, y: pipBounds.y });
-      win.setBounds(display.workArea, false);
+      win.setAspectRatio(0); 
+      win.maximize();
     }
   });
-
+  
   ipcMain.on('window-set-ratio', (e, ratio) => {
     currentRatio = ratio;
-    if (win && !isExpanded) {
+    // Only apply the aspect ratio physically if we aren't currently maximized
+    if (win && !win.isMaximized()) {
       win.setAspectRatio(ratio);
     }
   });
-
+  
   ipcMain.on('window-move', (e, x, y) => {
     if (win) {
       win.setPosition(Math.round(x), Math.round(y));
