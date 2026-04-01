@@ -38,25 +38,33 @@ function createWindow() {
 
   ipcMain.on('window-close', () => win.close());
 
+  let savedBounds = null;
+
   ipcMain.on('window-maximize', () => {
     if (!win || isAnimating) return;
+    const { screen } = require('electron');
 
     if (isExpanded) {
       isAnimating = true;
       isExpanded = false;
-      win.unmaximize();
+      if (savedBounds) {
+        win.setBounds(savedBounds);
+      }
       setTimeout(() => {
         win.setAspectRatio(currentRatio);
         isAnimating = false;
-      }, 500);
+      }, 300);
     } else {
       isAnimating = true;
       isExpanded = true;
+      savedBounds = win.getBounds();
       win.setAspectRatio(0);
+      const display = screen.getDisplayNearestPoint(win.getBounds());
+      const { x, y, width, height } = display.workArea;
+      win.setBounds({ x, y, width, height });
       setTimeout(() => {
-        win.maximize();
         isAnimating = false;
-      }, 50);
+      }, 300);
     }
   });
 
