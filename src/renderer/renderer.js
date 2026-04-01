@@ -219,3 +219,89 @@ ratioBtn.addEventListener('click', (e) => {
     e.target.style.textDecoration = isRatioLocked ? 'none' : 'line-through';
     e.target.title = isRatioLocked ? "Unlock Aspect Ratio" : "Lock to 16:9";
 });
+
+const bmToggle = document.getElementById('bookmark-toggle');
+const bmDropdown = document.getElementById('bookmark-dropdown');
+const bmList = document.getElementById('bookmark-list');
+const bmAddRow = document.getElementById('bookmark-add-row');
+const bmAddBtn = document.getElementById('bookmark-add-btn');
+const bmForm = document.getElementById('bookmark-form');
+const bmNameInput = document.getElementById('bm-name');
+const bmUrlInput = document.getElementById('bm-url');
+const bmSaveBtn = document.getElementById('bm-save');
+
+function getBookmarks() {
+    try { return JSON.parse(localStorage.getItem('floatie-bookmarks') || '[]'); } catch { return []; }
+}
+
+function saveBookmarks(list) {
+    localStorage.setItem('floatie-bookmarks', JSON.stringify(list));
+}
+
+function renderBookmarks() {
+    const bookmarks = getBookmarks();
+    bmList.innerHTML = '';
+    bookmarks.forEach((bm, i) => {
+        const row = document.createElement('div');
+        row.className = 'bookmark-entry';
+        const name = document.createElement('span');
+        name.className = 'bookmark-entry-name';
+        name.textContent = bm.name;
+        name.title = bm.url;
+        name.addEventListener('click', () => {
+            urlInput.value = bm.url;
+            loadVideo();
+            bmDropdown.classList.add('hidden');
+        });
+        const del = document.createElement('button');
+        del.className = 'bookmark-delete';
+        del.textContent = '×';
+        del.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const list = getBookmarks();
+            list.splice(i, 1);
+            saveBookmarks(list);
+            renderBookmarks();
+        });
+        row.appendChild(name);
+        row.appendChild(del);
+        bmList.appendChild(row);
+    });
+    bmAddRow.style.display = bookmarks.length >= 5 ? 'none' : 'flex';
+}
+
+bmToggle.addEventListener('click', () => {
+    bmDropdown.classList.toggle('hidden');
+    bmForm.classList.add('hidden');
+    renderBookmarks();
+});
+
+bmAddBtn.addEventListener('click', () => {
+    bmForm.classList.toggle('hidden');
+    bmNameInput.value = '';
+    bmUrlInput.value = '';
+    bmNameInput.focus();
+});
+
+bmSaveBtn.addEventListener('click', () => {
+    const name = bmNameInput.value.trim();
+    let url = bmUrlInput.value.trim();
+    if (!name || !url) return;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+    const list = getBookmarks();
+    if (list.length >= 5) return;
+    list.push({ name, url });
+    saveBookmarks(list);
+    bmForm.classList.add('hidden');
+    renderBookmarks();
+});
+
+bmNameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') bmUrlInput.focus(); });
+bmUrlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') bmSaveBtn.click(); });
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.bookmark-wrap')) {
+        bmDropdown.classList.add('hidden');
+        bmForm.classList.add('hidden');
+    }
+});

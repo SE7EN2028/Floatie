@@ -29,6 +29,22 @@
             <div class="url-bar">
                 <button id="back-btn" class="btn-nav" title="Back">&#8592;</button>
                 <button id="forward-btn" class="btn-nav" title="Forward">&#8594;</button>
+                <div class="bookmark-wrap">
+                    <button id="bookmark-toggle" class="btn-bookmark" title="Bookmarks">⇓</button>
+                    <div id="bookmark-dropdown" class="bookmark-dropdown hidden">
+                        <div id="bookmark-list"></div>
+                        <div id="bookmark-add-row" class="bookmark-add-row">
+                            <button id="bookmark-add-btn" class="bookmark-plus">+</button>
+                        </div>
+                        <div id="bookmark-form" class="bookmark-form hidden">
+                            <input type="text" id="bm-name" class="bm-input" placeholder="Name" autocomplete="off"
+                                spellcheck="false" />
+                            <input type="text" id="bm-url" class="bm-input" placeholder="URL" autocomplete="off"
+                                spellcheck="false" />
+                            <button id="bm-save" class="btn-bm-save">Save</button>
+                        </div>
+                    </div>
+                </div>
                 <input type="text" id="url-input" class="url-input" placeholder="Paste any URL or YouTube Link..."
                     autocomplete="off" spellcheck="false" />
                 <button id="go-btn" class="btn-go">Go</button>
