@@ -77,6 +77,7 @@ function createWindow() {
   const userDataPath = app.getPath('userData');
   const bookmarksFile = path.join(userDataPath, 'bookmarks.json');
 
+  ipcMain.removeHandler('get-bookmarks');
   ipcMain.handle('get-bookmarks', () => {
     try {
       if (fs.existsSync(bookmarksFile)) {
@@ -86,6 +87,7 @@ function createWindow() {
     return [];
   });
 
+  ipcMain.removeAllListeners('save-bookmarks');
   ipcMain.on('save-bookmarks', (e, bookmarks) => {
     try {
       fs.writeFileSync(bookmarksFile, JSON.stringify(bookmarks));
