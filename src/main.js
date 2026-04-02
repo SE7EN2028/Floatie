@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 let win;
 
@@ -8,8 +9,8 @@ app.commandLine.appendSwitch('disable-features', 'AudioServiceSandbox');
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 415,
-    height: 245,
+    width: 387,
+    height: 220,
     minWidth: 320,
     minHeight: 180,
     frame: false,
@@ -69,6 +70,24 @@ function createWindow() {
     if (win) {
       win.setPosition(Math.round(x), Math.round(y));
     }
+  });
+
+  const userDataPath = app.getPath('userData');
+  const bookmarksFile = path.join(userDataPath, 'bookmarks.json');
+
+  ipcMain.handle('get-bookmarks', () => {
+    try {
+      if (fs.existsSync(bookmarksFile)) {
+        return JSON.parse(fs.readFileSync(bookmarksFile, 'utf-8'));
+      }
+    } catch (e) { }
+    return [];
+  });
+
+  ipcMain.on('save-bookmarks', (e, bookmarks) => {
+    try {
+      fs.writeFileSync(bookmarksFile, JSON.stringify(bookmarks));
+    } catch (e) { }
   });
 }
 

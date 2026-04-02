@@ -237,16 +237,20 @@ const bmNameInput = document.getElementById('bm-name');
 const bmUrlInput = document.getElementById('bm-url');
 const bmSaveBtn = document.getElementById('bm-save');
 
-function getBookmarks() {
-    try { return JSON.parse(localStorage.getItem('floatie-bookmarks') || '[]'); } catch { return []; }
+async function getBookmarks() {
+    try {
+        return await window.electronAPI.getBookmarks();
+    } catch { return []; }
 }
 
 function saveBookmarks(list) {
-    localStorage.setItem('floatie-bookmarks', JSON.stringify(list));
+    try {
+        window.electronAPI.saveBookmarks(list);
+    } catch (e) {}
 }
 
-function renderBookmarks() {
-    const bookmarks = getBookmarks();
+async function renderBookmarks() {
+    const bookmarks = await getBookmarks();
     bmList.innerHTML = '';
     bookmarks.forEach((bm, i) => {
         const row = document.createElement('div');
@@ -263,9 +267,9 @@ function renderBookmarks() {
         const del = document.createElement('button');
         del.className = 'bookmark-delete';
         del.textContent = '×';
-        del.addEventListener('click', (e) => {
+        del.addEventListener('click', async (e) => {
             e.stopPropagation();
-            const list = getBookmarks();
+            const list = await getBookmarks();
             list.splice(i, 1);
             saveBookmarks(list);
             renderBookmarks();
@@ -290,12 +294,12 @@ bmAddBtn.addEventListener('click', () => {
     bmNameInput.focus();
 });
 
-bmSaveBtn.addEventListener('click', () => {
+bmSaveBtn.addEventListener('click', async () => {
     const name = bmNameInput.value.trim();
     let url = bmUrlInput.value.trim();
     if (!name || !url) return;
     if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
-    const list = getBookmarks();
+    const list = await getBookmarks();
     if (list.length >= 5) return;
     list.push({ name, url });
     saveBookmarks(list);
