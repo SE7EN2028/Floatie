@@ -107,26 +107,18 @@ ytPlayer.addEventListener('dom-ready', () => {
 
     if (isYouTube) {
         ytPlayer.executeJavaScript(`
-            setInterval(() => {
+            const cleanUI = () => {
                 const url = location.href;
                 if (url.includes('/watch') || url.includes('/live')) {
                     document.querySelectorAll('ytd-masthead, #masthead-container, #chat, ytd-live-chat-frame').forEach(el => el.remove());
                 }
-                document.querySelectorAll('.ytp-ad-overlay-container').forEach(el => el.remove());
-                
-                const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-ad-skip-button-modern');
-                if (skipBtn) {
-                    skipBtn.click();
-                } else if (document.querySelector('.ad-showing')) {
-                    const adModule = document.querySelector('.ytp-ad-player-overlay-instream-info, .ytp-ad-duration-remaining');
-                    if (adModule) {
-                        const v = document.querySelector('video');
-                        if (v && isFinite(v.duration) && v.currentTime < v.duration - 1) {
-                            v.currentTime = v.duration - 0.1;
-                        }
-                    }
-                }
-            }, 250);
+                document.querySelectorAll('.ytp-ad-overlay-container, .ytp-ad-message-container').forEach(el => el.style.display = 'none');
+            };
+
+            const observer = new MutationObserver(cleanUI);
+            observer.observe(document.body, { childList: true, subtree: true });
+            
+            setInterval(cleanUI, 500);
         `);
     }
 
@@ -246,7 +238,7 @@ async function getBookmarks() {
 function saveBookmarks(list) {
     try {
         window.electronAPI.saveBookmarks(list);
-    } catch (e) {}
+    } catch (e) { }
 }
 
 async function renderBookmarks() {

@@ -1,6 +1,8 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { ElectronBlocker } = require('@ghostery/adblocker-electron');
+const fetch = require('cross-fetch');
 
 let win;
 
@@ -95,6 +97,11 @@ app.whenReady().then(() => {
   if (process.platform === 'darwin') {
     app.dock.setIcon(path.join(__dirname, '..', 'assets', 'floatielogo.png'));
   }
+  
+  ElectronBlocker.fromPrebuiltAdsAndTracking(fetch).then((blocker) => {
+    blocker.enableBlockingInSession(session.defaultSession);
+  });
+  
   createWindow();
 
   app.on('activate', () => {
