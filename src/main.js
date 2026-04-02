@@ -40,31 +40,21 @@ function createWindow() {
 
   let savedBounds = null;
 
+  ipcMain.removeAllListeners('window-maximize');
   ipcMain.on('window-maximize', () => {
-    if (!win || isAnimating) return;
+    if (!win) return;
     const { screen } = require('electron');
 
     if (isExpanded) {
-      isAnimating = true;
       isExpanded = false;
-      if (savedBounds) {
-        win.setBounds(savedBounds);
-      }
-      setTimeout(() => {
-        win.setAspectRatio(currentRatio);
-        isAnimating = false;
-      }, 300);
+      if (savedBounds) win.setBounds(savedBounds);
+      win.setAspectRatio(currentRatio);
     } else {
-      isAnimating = true;
-      isExpanded = true;
       savedBounds = win.getBounds();
+      isExpanded = true;
       win.setAspectRatio(0);
-      const display = screen.getDisplayNearestPoint(win.getBounds());
-      const { x, y, width, height } = display.workArea;
+      const { x, y, width, height } = screen.getDisplayNearestPoint(savedBounds).workArea;
       win.setBounds({ x, y, width, height });
-      setTimeout(() => {
-        isAnimating = false;
-      }, 300);
     }
   });
 
