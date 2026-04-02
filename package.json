@@ -11,6 +11,7 @@
   "build": {
     "appId": "com.floatie.app",
     "productName": "Floatie",
+    "files": ["src/**/*", "assets/**/*", "package.json"],
     "mac": {
       "target": "dmg",
       "icon": "assets/floatielogo.png"
