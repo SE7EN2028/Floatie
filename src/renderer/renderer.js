@@ -141,7 +141,7 @@ ytPlayer.addEventListener('dom-ready', () => {
                 return null;
             })();
         `).catch(() => {
-            setTimeout(injectZapper, 500); // Retry silently if it fails due to Chromium single-page navigation timing
+            setTimeout(injectZapper, 500)
         });
     };
     injectZapper();
@@ -160,7 +160,7 @@ function handleYouTubeCSS(url) {
                 ytd-app, ytd-watch-flexy { background: #000 !important; padding: 0 !important; margin: 0 !important; display: block !important; }
                 .html5-video-player { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999 !important; }
                 video { object-fit: contain !important; object-position: top !important; width: 100vw !important; height: 100vh !important; top: 0 !important; left: 0 !important; }
-            `).then(key => injectedCssKey = key);
+            `).then(key => injectedCssKey = key).catch(() => {});
         }
     } else {
         if (injectedCssKey) {
