@@ -43,6 +43,7 @@ npm start
 ```
 
 That's it. The app should pop open. If it doesn't, check if you actually installed dependencies.
+This process was for the nerds, if you just want the application it's right there in the google drive folder given in the repo's description.
 
 ## How to Use
 
