@@ -1,6 +1,6 @@
 {
   "name": "floatie",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "System-wide floating video player",
   "main": "src/main.js",
   "scripts": {

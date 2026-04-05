@@ -105,22 +105,46 @@ ytPlayer.addEventListener('dom-ready', () => {
     const currentUrl = ytPlayer.getURL();
     const isYouTube = currentUrl.includes('youtube.com') || currentUrl.includes('youtu.be');
 
-    if (isYouTube) {
+    const injectZapper = () => {
+        if (!currentUrl.includes('youtube.com') && !currentUrl.includes('youtu.be')) return;
+        
         ytPlayer.executeJavaScript(`
-            const cleanUI = () => {
-                const url = location.href;
-                if (url.includes('/watch') || url.includes('/live')) {
-                    document.querySelectorAll('ytd-masthead, #masthead-container, #chat, ytd-live-chat-frame').forEach(el => el.remove());
-                }
-                document.querySelectorAll('.ytp-ad-overlay-container, .ytp-ad-message-container').forEach(el => el.style.display = 'none');
-            };
+            (() => {
+                if (window.__adZapperStarted) return null;
+                window.__adZapperStarted = true;
+                
+                setInterval(() => {
+                    const url = location.href;
+                    if (url.includes('/watch') || url.includes('/live')) {
+                        document.querySelectorAll('ytd-masthead, #masthead-container, #chat, ytd-live-chat-frame').forEach(el => el.remove());
+                    }
 
-            const observer = new MutationObserver(cleanUI);
-            observer.observe(document.body, { childList: true, subtree: true });
-            
-            setInterval(cleanUI, 500);
-        `);
-    }
+                    document.querySelectorAll('.ytp-ad-overlay-container, .ytp-ad-message-container').forEach(el => el.style.display = 'none');
+                    
+                    const adShowing = document.querySelector('.ad-showing');
+                    const video = document.querySelector('video');
+                    
+                    if (adShowing && video) {
+                        video.muted = true;
+                        video.playbackRate = 16.0;
+                        
+                        const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button');
+                        if (skipBtn) {
+                            skipBtn.click();
+                        } 
+                        
+                        if (isFinite(video.duration) && video.duration < 300 && video.currentTime < video.duration - 0.1) { 
+                            video.currentTime = video.duration - 0.1;
+                        }
+                    }
+                }, 250);
+                return null;
+            })();
+        `).catch(() => {
+            setTimeout(injectZapper, 500); // Retry silently if it fails due to Chromium single-page navigation timing
+        });
+    };
+    injectZapper();
 
     handleYouTubeCSS(currentUrl);
 });

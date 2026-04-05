@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const { ElectronBlocker } = require('@ghostery/adblocker-electron');
 const fetch = require('cross-fetch');
-
 let win;
 
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
@@ -99,11 +98,12 @@ app.whenReady().then(() => {
   if (process.platform === 'darwin') {
     app.dock.setIcon(path.join(__dirname, '..', 'assets', 'floatielogo.png'));
   }
-  
+
   ElectronBlocker.fromPrebuiltAdsAndTracking(fetch).then((blocker) => {
+    blocker.update({ added: ElectronBlocker.parse('@@||youtube.com^$document') });
     blocker.enableBlockingInSession(session.defaultSession);
   });
-  
+
   createWindow();
 
   app.on('activate', () => {
