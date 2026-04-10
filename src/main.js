@@ -1,13 +1,12 @@
 const { app, BrowserWindow, ipcMain, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { ElectronBlocker } = require('@ghostery/adblocker-electron');
-const fetch = require('cross-fetch');
+// Ghostery and fetch removed
 let win;
 
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 app.commandLine.appendSwitch('disable-features', 'AudioServiceSandbox');
-app.userAgentFallback = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36';
+app.userAgentFallback = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36';
 
 function createWindow() {
   win = new BrowserWindow({
@@ -100,10 +99,7 @@ app.whenReady().then(() => {
     app.dock.setIcon(path.join(__dirname, '..', 'assets', 'floatielogo.png'));
   }
 
-  ElectronBlocker.fromPrebuiltAdsAndTracking(fetch).then((blocker) => {
-    blocker.update({ added: ElectronBlocker.parse('@@||youtube.com^$document') });
-    blocker.enableBlockingInSession(session.defaultSession);
-  });
+  // Ghostery blocker removed as requested
 
   createWindow();
 

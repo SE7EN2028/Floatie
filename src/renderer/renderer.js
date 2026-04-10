@@ -105,43 +105,39 @@ ytPlayer.addEventListener('dom-ready', () => {
     const currentUrl = ytPlayer.getURL();
     const isYouTube = currentUrl.includes('youtube.com') || currentUrl.includes('youtu.be');
 
+    let zapperInjected = false;
     const injectZapper = () => {
         if (!currentUrl.includes('youtube.com') && !currentUrl.includes('youtu.be')) return;
-        
+        if (zapperInjected) return;
+
         ytPlayer.executeJavaScript(`
-            (() => {
-                if (window.__adZapperStarted) return null;
+            (function() {
+                if (window.__adZapperStarted) return "already results";
                 window.__adZapperStarted = true;
                 
                 setInterval(() => {
-                    const url = location.href;
-                    if (url.includes('/watch') || url.includes('/live')) {
-                        document.querySelectorAll('ytd-masthead, #masthead-container, #chat, ytd-live-chat-frame').forEach(el => el.remove());
-                    }
-
-                    document.querySelectorAll('.ytp-ad-overlay-container, .ytp-ad-message-container').forEach(el => el.style.display = 'none');
-                    
-                    const adShowing = document.querySelector('.ad-showing');
-                    const video = document.querySelector('video');
-                    
-                    if (adShowing && video) {
-                        video.muted = true;
-                        video.playbackRate = 16.0;
+                    try {
+                        const video = document.querySelector('video');
+                        const ad = document.querySelector('.ad-showing, .ad-interrupting');
                         
-                        const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button');
-                        if (skipBtn) {
-                            skipBtn.click();
-                        } 
-                        
-                        if (isFinite(video.duration) && video.duration < 300 && video.currentTime < video.duration - 0.1) { 
-                            video.currentTime = video.duration - 0.1;
+                        if (ad && video) {
+                            video.muted = true;
+                            video.playbackRate = 16.0;
+                            const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-skip-ad-button');
+                            if (skipBtn) skipBtn.click();
                         }
+                    } catch (e) {
+                     
                     }
-                }, 250);
-                return null;
+                }, 1000);
+                return "injected successfully";
             })();
-        `).catch(() => {
-            setTimeout(injectZapper, 500)
+        `).then(() => {
+            zapperInjected = true;
+        }).catch((err) => {
+            console.error('Zapper injection failed:', err);
+
+            setTimeout(() => { if (!zapperInjected) injectZapper(); }, 2000);
         });
     };
     injectZapper();
@@ -160,7 +156,7 @@ function handleYouTubeCSS(url) {
                 ytd-app, ytd-watch-flexy { background: #000 !important; padding: 0 !important; margin: 0 !important; display: block !important; }
                 .html5-video-player { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999 !important; }
                 video { object-fit: contain !important; object-position: top !important; width: 100vw !important; height: 100vh !important; top: 0 !important; left: 0 !important; }
-            `).then(key => injectedCssKey = key).catch(() => {});
+            `).then(key => injectedCssKey = key).catch(() => { });
         }
     } else {
         if (injectedCssKey) {

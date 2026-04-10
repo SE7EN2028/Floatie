@@ -44,8 +44,5 @@
     "electron": "^35.1.2",
     "electron-builder": "^26.8.1"
   },
-  "dependencies": {
-    "@ghostery/adblocker-electron": "^2.14.1",
-    "cross-fetch": "^4.1.0"
-  }
+  "dependencies": {}
 }
