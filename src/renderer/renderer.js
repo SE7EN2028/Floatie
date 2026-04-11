@@ -201,7 +201,7 @@ dotMaximize.addEventListener('click', () => {
     dismissMenu();
 });
 
-document.querySelector('.app-name').addEventListener('click', () => {
+document.getElementById('reload-btn').addEventListener('click', () => {
     if (!ytPlayer.classList.contains('hidden')) {
         ytPlayer.reload();
     }
