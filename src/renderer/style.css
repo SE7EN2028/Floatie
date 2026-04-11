@@ -63,7 +63,12 @@ body {
   flex-shrink: 0;
 }
 
-.dot:hover {
+.dot-close:hover {
+  transform: scale(0.8);
+}
+
+.dot-maximize:hover,
+.dot-cluster:hover .dot-maximize:hover {
   transform: scale(1.2);
 }
 
