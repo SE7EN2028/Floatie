@@ -120,15 +120,25 @@ ytPlayer.addEventListener('dom-ready', () => {
                         const video = document.querySelector('video');
                         const ad = document.querySelector('.ad-showing, .ad-interrupting');
                         
+                        // Fallback: Remove detection dialogs if they appear
+                        const dialog = document.querySelector('tp-yt-paper-dialog, ytd-enforcement-message-view-model');
+                        if (dialog && dialog.innerText.toLowerCase().includes('ad blocker')) {
+                            dialog.remove();
+                            if (video && video.paused) video.play();
+                        }
+
                         if (ad && video) {
                             video.muted = true;
-                            video.playbackRate = 16.0;
+                            // Use a more moderate speed (8x instead of 16x) to be less detectable
+                            video.playbackRate = 8.0;
+                            
                             const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-skip-ad-button');
-                            if (skipBtn) skipBtn.click();
+                            if (skipBtn) {
+                                // Add a tiny random delay to clicking skip to look more human
+                                setTimeout(() => skipBtn.click(), Math.random() * 300 + 100);
+                            }
                         }
-                    } catch (e) {
-                     
-                    }
+                    } catch (e) { }
                 }, 1000);
                 return "injected successfully";
             })();

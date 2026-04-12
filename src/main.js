@@ -6,7 +6,7 @@ let win;
 
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 app.commandLine.appendSwitch('disable-features', 'AudioServiceSandbox');
-app.userAgentFallback = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36';
+app.userAgentFallback = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
 
 function createWindow() {
   win = new BrowserWindow({
@@ -98,8 +98,6 @@ app.whenReady().then(() => {
   if (process.platform === 'darwin') {
     app.dock.setIcon(path.join(__dirname, '..', 'assets', 'floatielogo.png'));
   }
-
-  // Ghostery blocker removed as requested
 
   createWindow();
 
