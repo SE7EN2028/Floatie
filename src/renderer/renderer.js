@@ -129,8 +129,8 @@ ytPlayer.addEventListener('dom-ready', () => {
 
                         if (ad && video) {
                             video.muted = true;
-                            // Use a more moderate speed (8x instead of 16x) to be less detectable
-                            video.playbackRate = 8.0;
+                            // Use a higher speed (16x) to skip ads faster
+                            video.playbackRate = 16.0;
                             
                             const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-skip-ad-button');
                             if (skipBtn) {
@@ -207,6 +207,7 @@ urlInput.addEventListener('keydown', (e) => {
 
 dotClose.addEventListener('click', () => window.electronAPI.closeWindow());
 dotMaximize.addEventListener('click', () => {
+    document.body.classList.toggle('is-maximized');
     window.electronAPI.maximizeWindow();
     dismissMenu();
 });

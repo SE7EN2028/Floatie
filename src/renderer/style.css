@@ -72,6 +72,11 @@ body {
   transform: scale(1.2);
 }
 
+body.is-maximized .dot-maximize:hover,
+body.is-maximized .dot-cluster:hover .dot-maximize:hover {
+  transform: scale(0.8);
+}
+
 .dot-close {
   background: #ff5f56;
   border: 1px solid rgba(228, 84, 84, 0.5);
