@@ -20,7 +20,10 @@
         <div class="menu-trigger" id="menu-trigger" title="Drag Window"></div>
         <div class="controls-overlay">
             <div class="title-bar">
-                <span class="app-name" style="color: white;">Floatie</span>
+                <div class="tabs-list" id="tabs-list">
+                    <!-- Tabs will be dynamically inserted here -->
+                </div>
+                <button class="add-tab-btn" id="add-tab-btn" title="New Tab">+</button>
                 <div class="window-controls">
                     <button class="btn-ratio" title="Unlock Aspect Ratio">16:9</button>
                 </div>
@@ -53,10 +56,9 @@
         </div>
 
         <div class="player-area">
-            <webview id="yt-player" class="yt-player hidden" allowpopups disablewebsecurity="false"
-                useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-                webpreferences="contextIsolation=yes">
-            </webview>
+            <div id="webviews-container" class="webviews-container">
+                <!-- Webviews will be dynamically inserted here -->
+            </div>
 
             <div id="empty-state" class="empty-state">
                 <p>Floatie is Floating..
