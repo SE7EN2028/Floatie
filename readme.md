@@ -1,22 +1,24 @@
 # Floatie
 
-A lightweight, always-on-top browser for the multitaskers out there. Watch videos, browse the web, or just procrastinate—all while your main window stays in focus. 
+A lightweight, always-on-top browser for the multitaskers out there. Watch videos, browse the web, or just procrastinate—all while your main window stays in focus.  Now with **multi-tab support** for even better productivity!
 
 ## What's the point?
 
 Honestly, I built this because I got tired of alt-tabbing between my browser and VS Code while trying to follow a tutorial. Why can't I just have a tiny browser floating on top that stays there? So I made one.
 
-Floatie is basically a desktop browser (powered by Electron) that doesn't care about being on top of everything else. It's got the basics—back, forward, refresh, and a URL bar. No ads, no unnecessary bloat, just a window that won't get in your way but will always be there when you need it.
+Floatie is basically a desktop browser (powered by Electron) that doesn't care about being on top of everything else. It's got the basics—back, forward, refresh, and a URL bar. No ads, no unnecessary bloat, just a window that won't get in your way but will always be there when you need it. Plus, you can now open multiple tabs to juggle different websites without losing your place.
 
 Perfect for:
 - Watching tutorials while coding
 - Monitoring dashboards without switching tabs
 - Following documentation while building
-- Literally anything that needs two things at once
+- Literally anything that needs two (or more) things at once
+- Researching multiple sources at once
 
 ## Tech Stack
 
 - **Electron** - Because building a desktop app in JavaScript is weird but actually pretty cool
+- **Chromium** - Full browser engine for seamless web compatibility
 - **JavaScript** - Vanilla, no fancy frameworks needed for this one
 - **HTML/CSS** - Keep it simple
 - **macOS** - Currently macOS only (Windows/Linux support maybe someday)
@@ -51,8 +53,10 @@ This process was for the nerds, if you just want the application it's right ther
 2. **Type a URL** - Click the address bar, type something like `youtube.com` or `google.com`
 3. **Press Enter** - It navigates (obviously)
 4. **Use the buttons** - Back, forward, refresh work like any browser
-5. **Resize it** - Drag the edges to make it bigger or smaller
-6. **Pin/Unpin** - Click the pin button to toggle always-on-top (it stays pinned by default)
+5. **Open new tabs** - Click the "+" button to create a new tab and manage multiple pages
+6. **Switch between tabs** - Click any tab to switch, close with the X button
+7. **Resize it** - Drag the edges to make it bigger or smaller
+8. **Pin/Unpin** - Click the pin button to toggle always-on-top (it stays pinned by default)
 
 The window will stay on top of everything unless you unpin it. It remembers your last position and size, so it'll open in the same spot next time.
 
@@ -63,11 +67,12 @@ The window will stay on top of everything unless you unpin it. It remembers your
 - **Bookmarks** - Save pages you visit (honestly not sure if this is fully working, haven't tested it much)
 - **Standard Browser Controls** - Back, forward, refresh. The essentials.
 - **Lightweight** - Doesn't take up much space. Way less than having two browser windows open.
+- **Multi-Tab Support** - Open multiple websites and switch between them seamlessly.
+- **Full Chromium Engine** - Better compatibility and modern web support
 
 ## Known Issues / Limitations
 
 - **macOS only** - Yeah, I know. Windows and Linux users, I see you. Maybe I'll get to it.
-- **No tabs** - Just one window, one page at a time. This is actually by design (keeps it simple)
 - **No history sync** - It tracks history locally, but that's it
 - **Bookmarks might be broken** - I added the feature but... don't rely on it yet
 - **It's not a full browser** - No extensions, no syncing, no password manager. It's literally just a floating window that loads websites.
@@ -81,7 +86,6 @@ The window will stay on top of everything unless you unpin it. It remembers your
 
 ## Future Ideas (Maybe)
 
-- Multi-window support (run multiple Floaties at once)
 - Actual working bookmarks
 - Windows/Linux versions
 - Keyboard shortcuts
