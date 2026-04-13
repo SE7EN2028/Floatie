@@ -1,5 +1,4 @@
 const windowWrap = document.querySelector('.window-wrap');
-const ytPlayer = document.getElementById('yt-player');
 const urlInput = document.getElementById('url-input');
 const emptyState = document.getElementById('empty-state');
 const goBtn = document.getElementById('go-btn');
@@ -9,10 +8,103 @@ const dotCluster = document.getElementById('dot-cluster');
 const dotClose = document.getElementById('dot-close');
 const dotMaximize = document.getElementById('dot-maximize');
 
+const tabsContainer = document.getElementById('tabs-container');
+const addTabBtn = document.getElementById('add-tab-btn');
+const playerArea = document.querySelector('.player-area');
+
+let ytPlayer = document.getElementById('yt-player-1');
+let currentTabId = 1;
+let tabCount = 1;
+let tabs = [];
+let injectedCssKeys = {};
+
 windowWrap.classList.add('menu-hidden');
 
 let hoverTimeout;
 let isTyping = false;
+
+function createTabElement(id) {
+    const btn = document.createElement('div');
+    btn.className = 'tab-btn' + (id === currentTabId ? ' active' : '');
+    btn.dataset.id = id;
+    btn.innerHTML = `
+        <span class="tab-title">New Tab</span>
+        <button class="tab-close" title="Close Tab">×</button>
+    `;
+    btn.addEventListener('click', (e) => {
+        if(e.target.classList.contains('tab-close')) closeTab(id);
+        else switchToTab(id);
+    });
+    tabsContainer.insertBefore(btn, addTabBtn);
+    return btn;
+}
+
+function switchToTab(id) {
+    const tabIndex = tabs.findIndex(t => t.id === id);
+    if(tabIndex === -1) return;
+    
+    const currentBtn = tabsContainer.querySelector(`.tab-btn[data-id="${currentTabId}"]`);
+    if(currentBtn) currentBtn.classList.remove('active');
+    const currentWebview = document.getElementById(`yt-player-${currentTabId}`);
+    if(currentWebview) currentWebview.classList.remove('yt-player-active');
+    
+    currentTabId = id;
+    const newBtn = tabsContainer.querySelector(`.tab-btn[data-id="${currentTabId}"]`);
+    if(newBtn) newBtn.classList.add('active');
+    
+    const newWebview = document.getElementById(`yt-player-${currentTabId}`);
+    if(newWebview) {
+        newWebview.classList.add('yt-player-active');
+    }
+    
+    try {
+        const url = newWebview.getURL ? newWebview.getURL() : '';
+        urlInput.value = url;
+        if(url && url !== '' && url !== 'about:blank') {
+            emptyState.classList.add('hidden');
+            newWebview.classList.remove('hidden');
+        } else {
+            emptyState.classList.remove('hidden');
+            newWebview.classList.add('hidden');
+            urlInput.value = '';
+        }
+    } catch(e) {
+        emptyState.classList.remove('hidden');
+        if(newWebview) newWebview.classList.add('hidden');
+        urlInput.value = '';
+    }
+}
+
+function closeTab(id) {
+    if(tabs.length <= 1) {
+        window.electronAPI.closeWindow();
+        return;
+    }
+    const index = tabs.findIndex(t => t.id === id);
+    if(index === -1) return;
+    
+    const tabObj = tabs[index];
+    if(tabObj.webview) tabObj.webview.remove();
+    if(tabObj.btn) tabObj.btn.remove();
+    tabs.splice(index, 1);
+    
+    if(currentTabId === id) {
+        const nextTabId = tabs[index] ? tabs[index].id : tabs[index - 1].id;
+        switchToTab(nextTabId);
+    }
+}
+
+addTabBtn.addEventListener('click', () => {
+    tabCount++;
+    const newId = tabCount;
+    const webviewStr = `<webview id="yt-player-${newId}" class="yt-player yt-player-active hidden" allowpopups disablewebsecurity="false" useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" webpreferences="contextIsolation=yes"></webview>`;
+    playerArea.insertAdjacentHTML('beforeend', webviewStr);
+    const wv = document.getElementById(`yt-player-${newId}`);
+    const btn = createTabElement(newId);
+    tabs.push({ id: newId, webview: wv, btn: btn });
+    setupWebviewEvents(wv, btn);
+    switchToTab(newId);
+});
 
 function showMenu() {
     clearTimeout(hoverTimeout);
@@ -101,80 +193,88 @@ function extractYouTubeId(url) {
     return null;
 }
 
-ytPlayer.addEventListener('dom-ready', () => {
-    const currentUrl = ytPlayer.getURL();
-    const isYouTube = currentUrl.includes('youtube.com') || currentUrl.includes('youtu.be');
-
-    let zapperInjected = false;
-    const injectZapper = () => {
-        if (!currentUrl.includes('youtube.com') && !currentUrl.includes('youtu.be')) return;
-        if (zapperInjected) return;
-
-        ytPlayer.executeJavaScript(`
-            (function() {
-                if (window.__adZapperStarted) return "already results";
-                window.__adZapperStarted = true;
-                
-                setInterval(() => {
-                    try {
-                        const video = document.querySelector('video');
-                        const ad = document.querySelector('.ad-showing, .ad-interrupting');
-                        
-                        // Fallback: Remove detection dialogs if they appear
-                        const dialog = document.querySelector('tp-yt-paper-dialog, ytd-enforcement-message-view-model');
-                        if (dialog && dialog.innerText.toLowerCase().includes('ad blocker')) {
-                            dialog.remove();
-                            if (video && video.paused) video.play();
-                        }
-
-                        if (ad && video) {
-                            video.muted = true;
-                            // Use a higher speed (16x) to skip ads faster
-                            video.playbackRate = 16.0;
-                            
-                            const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-skip-ad-button');
-                            if (skipBtn) {
-                                // Add a tiny random delay to clicking skip to look more human
-                                setTimeout(() => skipBtn.click(), Math.random() * 300 + 100);
-                            }
-                        }
-                    } catch (e) { }
-                }, 1000);
-                return "injected successfully";
-            })();
-        `).then(() => {
-            zapperInjected = true;
-        }).catch((err) => {
-            console.error('Zapper injection failed:', err);
-
-            setTimeout(() => { if (!zapperInjected) injectZapper(); }, 2000);
-        });
-    };
-    injectZapper();
-
-    handleYouTubeCSS(currentUrl);
-});
-
-let injectedCssKey = null;
-function handleYouTubeCSS(url) {
-    const isPlayingVideo = url.includes('youtube.com/watch') || url.includes('youtu.be/');
+function handleYouTubeCSS(url, wv) {
+    const isPlayingVideo = url && (url.includes('youtube.com/watch') || url.includes('youtu.be/'));
+    const tabId = wv.id;
     if (isPlayingVideo) {
-        if (!injectedCssKey) {
-            ytPlayer.insertCSS(`
+        if (!injectedCssKeys[tabId]) {
+            wv.insertCSS(`
                 body { background: #000 !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; }
                 #masthead-container, #secondary, #comments, #footer, #related, ytd-watch-metadata, ytd-live-chat-frame { display: none !important; }
                 ytd-app, ytd-watch-flexy { background: #000 !important; padding: 0 !important; margin: 0 !important; display: block !important; }
                 .html5-video-player { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999 !important; }
                 video { object-fit: contain !important; object-position: top !important; width: 100vw !important; height: 100vh !important; top: 0 !important; left: 0 !important; }
-            `).then(key => injectedCssKey = key).catch(() => { });
+            `).then(key => injectedCssKeys[tabId] = key).catch(() => { });
         }
     } else {
-        if (injectedCssKey) {
-            ytPlayer.removeInsertedCSS(injectedCssKey);
-            injectedCssKey = null;
+        if (injectedCssKeys[tabId]) {
+            wv.removeInsertedCSS(injectedCssKeys[tabId]);
+            delete injectedCssKeys[tabId];
         }
     }
 }
+
+function setupWebviewEvents(wv, tabBtn) {
+    const tabTitle = tabBtn.querySelector('.tab-title');
+
+    wv.addEventListener('dom-ready', () => {
+        const currentUrl = wv.getURL();
+        let zapperInjected = false;
+        const injectZapper = () => {
+            if (!currentUrl.includes('youtube.com') && !currentUrl.includes('youtu.be')) return;
+            if (zapperInjected) return;
+            wv.executeJavaScript(`
+                (function() {
+                    if (window.__adZapperStarted) return "already results";
+                    window.__adZapperStarted = true;
+                    setInterval(() => {
+                        try {
+                            const video = document.querySelector('video');
+                            const ad = document.querySelector('.ad-showing, .ad-interrupting');
+                            const dialog = document.querySelector('tp-yt-paper-dialog, ytd-enforcement-message-view-model');
+                            if (dialog && dialog.innerText.toLowerCase().includes('ad blocker')) {
+                                dialog.remove();
+                                if (video && video.paused) video.play();
+                            }
+                            if (ad && video) {
+                                video.muted = true;
+                                video.playbackRate = 16.0;
+                                const skipBtn = document.querySelector('.ytp-ad-skip-button, .ytp-skip-ad-button');
+                                if (skipBtn) setTimeout(() => skipBtn.click(), Math.random() * 300 + 100);
+                            }
+                        } catch (e) { }
+                    }, 1000);
+                    return "injected successfully";
+                })();
+            `).then(() => { zapperInjected = true; }).catch((err) => {
+                setTimeout(() => { if (!zapperInjected) injectZapper(); }, 2000);
+            });
+        };
+        injectZapper();
+        handleYouTubeCSS(currentUrl, wv);
+    });
+
+    wv.addEventListener('did-navigate', (e) => {
+        if(currentTabId === parseInt(wv.id.split('-').pop())) urlInput.value = e.url;
+        handleYouTubeCSS(e.url, wv);
+    });
+    
+    wv.addEventListener('did-navigate-in-page', (e) => {
+        if(currentTabId === parseInt(wv.id.split('-').pop())) urlInput.value = e.url;
+        handleYouTubeCSS(e.url, wv);
+    });
+    
+    wv.addEventListener('page-title-updated', (e) => {
+        const title = e.title || 'New Tab';
+        tabTitle.textContent = title;
+        tabTitle.title = title;
+    });
+}
+
+setTimeout(() => {
+    tabs.push({ id: 1, webview: ytPlayer, btn: createTabElement(1) });
+    setupWebviewEvents(ytPlayer, tabs[0].btn);
+}, 50);
 
 function loadVideo() {
     let url = urlInput.value.trim();
@@ -189,8 +289,9 @@ function loadVideo() {
         }
     }
 
-    ytPlayer.src = url;
-    ytPlayer.classList.remove('hidden');
+    const activePlayer = document.getElementById(`yt-player-${currentTabId}`) || ytPlayer;
+    activePlayer.src = url;
+    activePlayer.classList.remove('hidden');
     emptyState.classList.add('hidden');
 
     isTyping = false;
@@ -213,26 +314,22 @@ dotMaximize.addEventListener('click', () => {
 });
 
 document.getElementById('reload-btn').addEventListener('click', () => {
-    if (!ytPlayer.classList.contains('hidden')) {
-        ytPlayer.reload();
+    const activePlayer = document.getElementById(`yt-player-${currentTabId}`) || ytPlayer;
+    if (!activePlayer.classList.contains('hidden') && activePlayer.reload) {
+        activePlayer.reload();
     }
 });
 
 document.getElementById('back-btn').addEventListener('click', () => {
-    if (ytPlayer.canGoBack()) ytPlayer.goBack();
+    const activePlayer = document.getElementById(`yt-player-${currentTabId}`) || ytPlayer;
+    if (activePlayer.canGoBack && activePlayer.canGoBack()) activePlayer.goBack();
 });
 document.getElementById('forward-btn').addEventListener('click', () => {
-    if (ytPlayer.canGoForward()) ytPlayer.goForward();
+    const activePlayer = document.getElementById(`yt-player-${currentTabId}`) || ytPlayer;
+    if (activePlayer.canGoForward && activePlayer.canGoForward()) activePlayer.goForward();
 });
 
-ytPlayer.addEventListener('did-navigate', (e) => {
-    urlInput.value = e.url;
-    handleYouTubeCSS(e.url);
-});
-ytPlayer.addEventListener('did-navigate-in-page', (e) => {
-    urlInput.value = e.url;
-    handleYouTubeCSS(e.url);
-});
+// Old isolated event listeners removed to use setupWebviewEvents
 
 let isRatioLocked = false;
 const ratioBtn = document.querySelector('.btn-ratio');

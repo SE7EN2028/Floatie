@@ -160,6 +160,16 @@ body.is-maximized .dot-cluster:hover .dot-maximize:hover {
   cursor: grab;
 }
 
+.tabs-container { display: flex; flex: 1; margin: 0 10px; gap: 4px; overflow-x: auto; scrollbar-width: none; -webkit-app-region: no-drag; }
+.tab-btn { display: flex; align-items: center; gap: 4px; padding: 3px 8px; font-size: 11px; max-width: 100px; color: var(--muted); background: rgba(255,255,255,0.05); border: 1px solid transparent; border-radius: 6px; cursor: pointer; -webkit-app-region: no-drag; }
+.tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.1); }
+.tab-btn.active { color: #fff; background: rgba(124,106,247,0.2); border-color: rgba(124,106,247,0.5); }
+.tab-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
+.tab-close { background: none; border: none; color: inherit; opacity: 0.6; cursor: pointer; }
+.tab-close:hover { opacity: 1; color: #ff5f56; }
+.add-tab-btn { background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 0 4px; -webkit-app-region: no-drag; }
+.add-tab-btn:hover { color: #fff; }
+
 .app-name {
   font-size: 13px;
   opacity: 0.9;
@@ -320,9 +330,14 @@ body.is-maximized .dot-cluster:hover .dot-maximize:hover {
 .yt-player {
   flex: 1;
   border: none;
+  display: none;
 }
 
-.yt-player.hidden {
+.yt-player.yt-player-active {
+  display: flex;
+}
+
+.yt-player.yt-player-active.hidden {
   display: none;
 }
 

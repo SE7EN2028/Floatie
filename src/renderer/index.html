@@ -21,6 +21,9 @@
         <div class="controls-overlay">
             <div class="title-bar">
                 <span class="app-name" style="color: white;">Floatie</span>
+                <div id="tabs-container" class="tabs-container">
+                    <button id="add-tab-btn" class="add-tab-btn" title="New Tab">+</button>
+                </div>
                 <div class="window-controls">
                     <button class="btn-ratio" title="Unlock Aspect Ratio">16:9</button>
                 </div>
@@ -53,7 +56,7 @@
         </div>
 
         <div class="player-area">
-            <webview id="yt-player" class="yt-player hidden" allowpopups disablewebsecurity="false"
+            <webview id="yt-player-1" class="yt-player hidden yt-player-active" data-tab-id="1" allowpopups disablewebsecurity="false"
                 useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
                 webpreferences="contextIsolation=yes">
             </webview>
