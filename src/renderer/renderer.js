@@ -283,10 +283,12 @@ function loadVideo() {
     const videoId = extractYouTubeId(url);
     if (videoId) {
         url = `https://www.youtube.com/watch?v=${videoId}`;
+    } else if (url.startsWith('http://') || url.startsWith('https://')) {
+        // already a full URL
+    } else if (url.includes('.') && !url.includes(' ')) {
+        url = `https://${url}`;
     } else {
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            url = `https://${url}`;
-        }
+        url = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
     }
 
     const activePlayer = document.getElementById(`yt-player-${currentTabId}`) || ytPlayer;
