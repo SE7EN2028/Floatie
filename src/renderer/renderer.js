@@ -329,8 +329,6 @@ document.getElementById('forward-btn').addEventListener('click', () => {
     if (activePlayer.canGoForward && activePlayer.canGoForward()) activePlayer.goForward();
 });
 
-// Old isolated event listeners removed to use setupWebviewEvents
-
 let isRatioLocked = false;
 const ratioBtn = document.querySelector('.btn-ratio');
 
@@ -359,7 +357,16 @@ const bmSaveBtn = document.getElementById('bm-save');
 
 async function getBookmarks() {
     try {
-        return await window.electronAPI.getBookmarks();
+        const list = await window.electronAPI.getBookmarks();
+        let needsSave = false;
+        for (const bm of list) {
+            if (!bm.id) {
+                bm.id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+                needsSave = true;
+            }
+        }
+        if (needsSave) saveBookmarks(list);
+        return list;
     } catch { return []; }
 }
 
@@ -372,7 +379,7 @@ function saveBookmarks(list) {
 async function renderBookmarks() {
     const bookmarks = await getBookmarks();
     bmList.innerHTML = '';
-    bookmarks.forEach((bm, i) => {
+    bookmarks.forEach((bm) => {
         const row = document.createElement('div');
         row.className = 'bookmark-entry';
         const name = document.createElement('span');
@@ -390,8 +397,8 @@ async function renderBookmarks() {
         del.addEventListener('click', async (e) => {
             e.stopPropagation();
             const list = await getBookmarks();
-            list.splice(i, 1);
-            saveBookmarks(list);
+            const updated = list.filter(b => b.id !== bm.id);
+            saveBookmarks(updated);
             renderBookmarks();
         });
         row.appendChild(name);
@@ -421,7 +428,8 @@ bmSaveBtn.addEventListener('click', async () => {
     if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
     const list = await getBookmarks();
     if (list.length >= 5) return;
-    list.push({ name, url });
+    const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    list.push({ id, name, url });
     saveBookmarks(list);
     bmForm.classList.add('hidden');
     renderBookmarks();
