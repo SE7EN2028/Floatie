@@ -144,9 +144,6 @@ A: Technically no, but maybe someday.
 **Q: Does it use much memory?**
 A: It's an Electron app, so... it uses memory. Not as much as Chrome though.
 
-**Q: Why no dark mode?**
-A: Because I didn't think of it until later. CSS is right there if you want to add it.
-
 **Q: Is this production-ready?**
 A: It works for me. That's all I can say.
 
