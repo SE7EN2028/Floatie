@@ -198,16 +198,17 @@ function handleYouTubeCSS(url, wv) {
     const tabId = wv.id;
     if (isPlayingVideo) {
         if (!injectedCssKeys[tabId]) {
+            injectedCssKeys[tabId] = 'pending';
             wv.insertCSS(`
                 body { background: #000 !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; }
                 #masthead-container, #secondary, #comments, #footer, #related, ytd-watch-metadata, ytd-live-chat-frame { display: none !important; }
                 ytd-app, ytd-watch-flexy { background: #000 !important; padding: 0 !important; margin: 0 !important; display: block !important; }
                 .html5-video-player { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999 !important; }
                 video { object-fit: contain !important; object-position: top !important; width: 100vw !important; height: 100vh !important; top: 0 !important; left: 0 !important; }
-            `).then(key => injectedCssKeys[tabId] = key).catch(() => { });
+            `).then(key => { injectedCssKeys[tabId] = key; }).catch(() => { delete injectedCssKeys[tabId]; });
         }
     } else {
-        if (injectedCssKeys[tabId]) {
+        if (injectedCssKeys[tabId] && injectedCssKeys[tabId] !== 'pending') {
             wv.removeInsertedCSS(injectedCssKeys[tabId]);
             delete injectedCssKeys[tabId];
         }
@@ -216,7 +217,6 @@ function handleYouTubeCSS(url, wv) {
 
 function setupWebviewEvents(wv, tabBtn) {
     const tabTitle = tabBtn.querySelector('.tab-title');
-
     wv.addEventListener('dom-ready', () => {
         const currentUrl = wv.getURL();
         let zapperInjected = false;
@@ -446,3 +446,11 @@ document.addEventListener('click', (e) => {
         bmForm.classList.add('hidden');
     }
 });
+
+
+
+
+
+
+
+
