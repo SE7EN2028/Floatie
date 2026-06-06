@@ -1,7 +1,6 @@
 const { app, BrowserWindow, ipcMain, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
-// Ghostery and fetch removed
 let win;
 
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
@@ -92,6 +91,25 @@ function createWindow() {
       fs.writeFileSync(bookmarksFile, JSON.stringify(bookmarks));
     } catch (e) { }
   });
+
+  const sessionFile = path.join(userDataPath, 'session.json');
+
+  ipcMain.removeHandler('get-session');
+  ipcMain.handle('get-session', () => {
+    try {
+      if (fs.existsSync(sessionFile)) {
+        return JSON.parse(fs.readFileSync(sessionFile, 'utf-8'));
+      }
+    } catch (e) { }
+    return [];
+  });
+
+  ipcMain.removeAllListeners('save-session');
+  ipcMain.on('save-session', (e, urls) => {
+    try {
+      fs.writeFileSync(sessionFile, JSON.stringify(urls));
+    } catch (e) { }
+  });
 }
 
 app.whenReady().then(() => {
@@ -102,6 +120,7 @@ app.whenReady().then(() => {
   createWindow();
 
   app.on('activate', () => {
+
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
     }

@@ -77,6 +77,7 @@ function switchToTab(id) {
 
 function closeTab(id) {
     if(tabs.length <= 1) {
+        saveSession();
         window.electronAPI.closeWindow();
         return;
     }
@@ -274,6 +275,7 @@ function setupWebviewEvents(wv, tabBtn) {
 setTimeout(() => {
     tabs.push({ id: 1, webview: ytPlayer, btn: createTabElement(1) });
     setupWebviewEvents(ytPlayer, tabs[0].btn);
+    restoreSession();
 }, 50);
 
 function loadVideo() {
@@ -308,7 +310,34 @@ urlInput.addEventListener('keydown', (e) => {
     }
 });
 
-dotClose.addEventListener('click', () => window.electronAPI.closeWindow());
+function saveSession() {
+    const urls = tabs.map(t => {
+        try {
+            const url = t.webview.getURL ? t.webview.getURL() : '';
+            return (url && url !== 'about:blank') ? url : null;
+        } catch { return null; }
+    }).filter(Boolean);
+    window.electronAPI.saveSession(urls);
+}
+
+async function restoreSession() {
+    const urls = await window.electronAPI.getSession();
+    if (!urls || urls.length === 0) return;
+    if (urls[0]) {
+        urlInput.value = urls[0];
+        loadVideo();
+    }
+    for (let i = 1; i < urls.length; i++) {
+        addTabBtn.click();
+        urlInput.value = urls[i];
+        loadVideo();
+    }
+}
+
+dotClose.addEventListener('click', () => {
+    saveSession();
+    window.electronAPI.closeWindow();
+});
 dotMaximize.addEventListener('click', () => {
     document.body.classList.toggle('is-maximized');
     window.electronAPI.maximizeWindow();

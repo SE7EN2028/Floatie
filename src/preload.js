@@ -6,5 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     setRatio: (ratio) => ipcRenderer.send('window-set-ratio', ratio),
     moveWindow: (dx, dy) => ipcRenderer.send('window-move', dx, dy),
     getBookmarks: () => ipcRenderer.invoke('get-bookmarks'),
-    saveBookmarks: (bookmarks) => ipcRenderer.send('save-bookmarks', bookmarks)
+    saveBookmarks: (bookmarks) => ipcRenderer.send('save-bookmarks', bookmarks),
+    getSession: () => ipcRenderer.invoke('get-session'),
+    saveSession: (urls) => ipcRenderer.send('save-session', urls)
 });
