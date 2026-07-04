@@ -98,7 +98,7 @@ function closeTab(id) {
 addTabBtn.addEventListener('click', () => {
     tabCount++;
     const newId = tabCount;
-    const webviewStr = `<webview id="yt-player-${newId}" class="yt-player yt-player-active hidden" allowpopups disablewebsecurity="false" useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" webpreferences="contextIsolation=yes"></webview>`;
+    const webviewStr = `<webview id="yt-player-${newId}" class="yt-player yt-player-active hidden" allowpopups useragent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36" webpreferences="contextIsolation=yes"></webview>`;
     playerArea.insertAdjacentHTML('beforeend', webviewStr);
     const wv = document.getElementById(`yt-player-${newId}`);
     const btn = createTabElement(newId);
