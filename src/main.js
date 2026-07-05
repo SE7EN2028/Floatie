@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, session } = require('electron');
+const { app, BrowserWindow, ipcMain, session, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
 let win;
@@ -37,6 +37,34 @@ function createWindow() {
   let isAnimating = false;
   let isExpanded = false;
 
+  let lastGoodBounds = win.getBounds();
+  let programmaticResize = false;
+  let dpiChangeInFlight = false;
+  let dpiFlightTimer = null;
+
+  screen.on('display-metrics-changed', (event, display, changedMetrics) => {
+    if (changedMetrics.includes('scaleFactor')) {
+      dpiChangeInFlight = true;
+      clearTimeout(dpiFlightTimer);
+      dpiFlightTimer = setTimeout(() => { dpiChangeInFlight = false; }, 300);
+    }
+  });
+
+  win.on('resize', () => {
+    if (programmaticResize) {
+      lastGoodBounds = win.getBounds();
+      return;
+    }
+    if (dpiChangeInFlight) {
+      dpiChangeInFlight = false;
+      clearTimeout(dpiFlightTimer);
+      const { x, y } = win.getBounds();
+      win.setBounds({ x, y, width: lastGoodBounds.width, height: lastGoodBounds.height });
+      return;
+    }
+    lastGoodBounds = win.getBounds();
+  });
+
   ipcMain.on('window-close', () => win.close());
 
   let savedBounds = null;
@@ -44,8 +72,8 @@ function createWindow() {
   ipcMain.removeAllListeners('window-maximize');
   ipcMain.on('window-maximize', () => {
     if (!win) return;
-    const { screen } = require('electron');
 
+    programmaticResize = true;
     if (isExpanded) {
       isExpanded = false;
       if (savedBounds) win.setBounds(savedBounds);
@@ -57,6 +85,7 @@ function createWindow() {
       const { x, y, width, height } = screen.getDisplayNearestPoint(savedBounds).workArea;
       win.setBounds({ x, y, width, height });
     }
+    setImmediate(() => { programmaticResize = false; });
   });
 
   ipcMain.on('window-set-ratio', (e, ratio) => {
