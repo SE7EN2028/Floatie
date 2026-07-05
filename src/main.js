@@ -16,7 +16,7 @@ function createWindow() {
     frame: false,
     transparent: true,
     alwaysOnTop: true,
-    resizable: true,
+    resizable: false,
     hasShadow: true,
     icon: path.join(__dirname, '..', 'assets', 'floatielogo.png'),
     webPreferences: {
